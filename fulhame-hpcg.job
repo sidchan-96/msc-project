@@ -31,17 +31,17 @@ export hpcg=${hpcgDir}/xhpcg
 
 rt=60
 
-#for n in 1 64
+for n in 1 64
 
-#do
+do
 
-	nx=32
-	ny=32
-	nz=32
+	nx=4
+	ny=4
+	nz=4
 
-	#while [[ $(( $nx*$ny*$nz )) -le $(( 63*64*64 )) ]] 
+	while [[ $(( $nx*$ny*$nz )) -le $(( 64*64*64 )) ]] 
 	
-  	#do
+  	do
     
 	cd $SLURM_SUBMIT_DIR
     	export runDir=hpcg-${n}-${nx}-${ny}-${nz}
@@ -52,26 +52,24 @@ rt=60
     
                 sleep 10
     
-  	  mpirun -np 64 $hpcg --nx=$nx --ny=$ny --nz=$nz  --rt=$rt
+  	  mpirun -np $n $hpcg --nx=$nx --ny=$ny --nz=$nz  --rt=$rt
     
     		sleep 10
     
    	 sudo /bin/pkill tx2mon
 
-	 wait 	
-#	completed first experiment, now increase matrix size
-#	if [[ $nz -lt $ny ]]
-#	then
-#		nz=$(( $nz*2 ))
-#	elif [[ $ny -lt $nx ]]
-#	then
-#		ny=$(( $ny*2 ))
-#	else
-#		nx=$(( $nx*2 ))
-#	fi
+	 wait 
+	#completed first experiment, now increase matrix size
+	if [[ $nz -lt $ny ]]
+	then
+		nz=$(( $nz*2 ))
+	elif [[ $ny -lt $nx ]]
+	then
+		ny=$(( $ny*2 ))
+	else
+		nx=$(( $nx*2 ))
+	fi
 	#Paul helped me design this loop
 
-#done
-
-#done
-
+done
+done

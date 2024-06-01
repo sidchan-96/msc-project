@@ -81,7 +81,7 @@ int TestSymmetry(SparseMatrix & A, Vector & b, Vector & xexact, TestSymmetryData
 
  // Next, compute x'*A*y
  ComputeDotProduct(nrow, y_ncol, y_ncol, yNorm2, t4, A.isDotProductOptimized);
- int ierr = ComputeSPMV(A, y_ncol, z_ncol); // z_nrow = A*y_overlap
+ int ierr = ComputeSPMV(A, y_ncol, z_ncol, false); // z_nrow = A*y_overlap
  if (ierr) HPCG_fout << "Error in call to SpMV: " << ierr << ".\n" << endl;
  double xtAy = 0.0;
  ierr = ComputeDotProduct(nrow, x_ncol, z_ncol, xtAy, t4, A.isDotProductOptimized); // x'*A*y
@@ -89,7 +89,7 @@ int TestSymmetry(SparseMatrix & A, Vector & b, Vector & xexact, TestSymmetryData
 
  // Next, compute y'*A*x
  ComputeDotProduct(nrow, x_ncol, x_ncol, xNorm2, t4, A.isDotProductOptimized);
- ierr = ComputeSPMV(A, x_ncol, z_ncol); // b_computed = A*x_overlap
+ ierr = ComputeSPMV(A, x_ncol, z_ncol, false);; // b_computed = A*x_overlap
  if (ierr) HPCG_fout << "Error in call to SpMV: " << ierr << ".\n" << endl;
  double ytAx = 0.0;
  ierr = ComputeDotProduct(nrow, y_ncol, z_ncol, ytAx, t4, A.isDotProductOptimized); // y'*A*x
@@ -124,7 +124,7 @@ int TestSymmetry(SparseMatrix & A, Vector & b, Vector & xexact, TestSymmetryData
  int numberOfCalls = 2;
  double residual = 0.0;
  for (int i=0; i< numberOfCalls; ++i) {
-   ierr = ComputeSPMV(A, x_ncol, z_ncol); // b_computed = A*x_overlap
+   ierr = ComputeSPMV(A, x_ncol, z_ncol, false); // b_computed = A*x_overlap
    if (ierr) HPCG_fout << "Error in call to SpMV: " << ierr << ".\n" << endl;
    if ((ierr = ComputeResidual(A.localNumberOfRows, b, z_ncol, residual)))
      HPCG_fout << "Error in call to compute_residual: " << ierr << ".\n" << endl;

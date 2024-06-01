@@ -58,13 +58,13 @@
 */
 int CG(const SparseMatrix & A, CGData & data, const Vector & b, Vector & x,
     const int max_iter, const double tolerance, int & niters, double & normr, double & normr0,
-    double * times, bool doPreconditioning) {
+    double * times, bool doPreconditioning, bool testing) {
 
   double t_begin = mytimer();  // Start timing right away
   normr = 0.0;
   double rtz = 0.0, oldrtz = 0.0, alpha = 0.0, beta = 0.0, pAp = 0.0;
   doPreconditioning = false;
-
+  
   double t0 = 0.0, t1 = 0.0, t2 = 0.0, t3 = 0.0, t4 = 0.0, t5 = 0.0;
 //#ifndef HPCG_NO_MPI
 //  double t6 = 0.0;
@@ -84,7 +84,7 @@ int CG(const SparseMatrix & A, CGData & data, const Vector & b, Vector & x,
 #endif
   // p is of length ncols, copy x to p for sparse MV operation
   CopyVector(x, p);
-  TICK(); ComputeSPMV(A, p, Ap); TOCK(t3); // Ap = A*p
+  TICK(); ComputeSPMV(A, p, Ap, testing); TOCK(t3); // Ap = A*p
   TICK(); ComputeWAXPBY(nrow, 1.0, b, -1.0, Ap, r, A.isWaxpbyOptimized);  TOCK(t2); // r = b - Ax (x stored in p)
   TICK(); ComputeDotProduct(nrow, r, r, normr, t4, A.isDotProductOptimized); TOCK(t1);
   normr = sqrt(normr);
@@ -115,7 +115,7 @@ int CG(const SparseMatrix & A, CGData & data, const Vector & b, Vector & x,
       TICK(); ComputeWAXPBY (nrow, 1.0, z, beta, p, p, A.isWaxpbyOptimized);  TOCK(t2); // p = beta*p + z
     }
 
-    TICK(); ComputeSPMV(A, p, Ap); TOCK(t3); // Ap = A*p
+    TICK(); ComputeSPMV(A, p, Ap, testing); TOCK(t3); // Ap = A*p
     TICK(); ComputeDotProduct(nrow, p, Ap, pAp, t4, A.isDotProductOptimized); TOCK(t1); // alpha = p'*Ap
     alpha = rtz/pAp;
     TICK(); ComputeWAXPBY(nrow, 1.0, x, alpha, p, x, A.isWaxpbyOptimized);// x = x + alpha*p
