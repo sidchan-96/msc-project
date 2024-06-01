@@ -1,0 +1,77 @@
+#!/bin/bash
+
+# You may want to edit the following lines: use "qos=standard" for
+# more than 2 nodes. Replace "account=dc116" below with your own
+# budget code (e.g. dc116-s1234567)
+
+#SBATCH --job-name=cacheLvl
+#SBATCH --time=06:00:00
+#SBATCH --nodes=1
+
+# You can probably leave these options mostly as they are
+
+#SBATCH --output=%x-%j.out
+#SBATCH --error=%x-%j.err
+#SBATCH --tasks-per-node=64
+#SBATCH -p workq
+#SBATCH --nodelist=cn09
+
+# Launch the parallel job
+
+module load PrgEnv/gnu-9.2/openmpi-4.0.2
+module load tx2mon
+sudo /sbin/insmod /home/fh01/fh01/njohnso1/tx2mon/modules/tx2mon_kmod.ko
+
+export hpcgDir=${HOME}/s1508406/hpcg/build/bin
+
+export OMP_NUM_THREADS=1
+
+export hpcg=${hpcgDir}/xhpcg
+
+
+rt=60
+
+#for n in 1 64
+
+#do
+
+	nx=32
+	ny=32
+	nz=32
+
+	#while [[ $(( $nx*$ny*$nz )) -le $(( 63*64*64 )) ]] 
+	
+  	#do
+    
+	cd $SLURM_SUBMIT_DIR
+    	export runDir=hpcg-${n}-${nx}-${ny}-${nz}
+    	mkdir $runDir
+    	cd $runDir
+    
+    	sudo $(which tx2mon) -f pwr-${n}-${nx}-${ny}-${nz}.csv &
+    
+                sleep 10
+    
+  	  mpirun -np 64 $hpcg --nx=$nx --ny=$ny --nz=$nz  --rt=$rt
+    
+    		sleep 10
+    
+   	 sudo /bin/pkill tx2mon
+
+	 wait 	
+#	completed first experiment, now increase matrix size
+#	if [[ $nz -lt $ny ]]
+#	then
+#		nz=$(( $nz*2 ))
+#	elif [[ $ny -lt $nx ]]
+#	then
+#		ny=$(( $ny*2 ))
+#	else
+#		nx=$(( $nx*2 ))
+#	fi
+	#Paul helped me design this loop
+
+#done
+
+#done
+
